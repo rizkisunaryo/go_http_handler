@@ -4,17 +4,17 @@ import (
 "net/http"
 )
 
-func HttpHandler(header string, handler func()(func(string, http.ResponseWriter, *http.Request), func(string, http.ResponseWriter, *http.Request), func(string, http.ResponseWriter, *http.Request), func(string, http.ResponseWriter, *http.Request))) http.HandlerFunc {
+func HttpHandler(handler func()(string, func(string, http.ResponseWriter, *http.Request), func(string, http.ResponseWriter, *http.Request), func(string, http.ResponseWriter, *http.Request), func(string, http.ResponseWriter, *http.Request))) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		header = r.RemoteAddr + ": "+ header +": "
-
-		defer go_recover.Recover(header)
-
 		r.Header.Set("Connection", "close")
 		w.Header().Set("Connection", "close")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		getHandler, postHandler, putHandler, deleteHandler := handler()
+		header, getHandler, postHandler, putHandler, deleteHandler := handler()
+
+		header = r.RemoteAddr + ": "+ header +": "
+		defer go_recover.Recover(header)
+
 		switch r.Method {
 			case "GET":
 				getHandler(header, w, r)
